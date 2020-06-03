@@ -4,23 +4,33 @@ using System.Text;
 
 namespace DependencyInjection
 {
-    public class OrderManager
+    public interface IOrderManager
     {
+        void Submit(Product product, string creditCardNumber, string expiryDate);
+    }
+    public class OrderManager : IOrderManager
+    {
+        IProductStockRepository _productStockRepository;
+        IPaymentProcessor _paymentProcessor;
+        IShippingProcessor _shippingProcessor;
+        public OrderManager(IProductStockRepository productStockRepository, IPaymentProcessor paymentProcessor, IShippingProcessor shippingProcessor)
+        {
+            _productStockRepository = productStockRepository;
+            _paymentProcessor = paymentProcessor;
+            _shippingProcessor = shippingProcessor;
+        }
         public void Submit(Product product, string creditCardNumber, string expiryDate)
         {
             // Check product stock
-            var productStockRepository = new ProductStockRepository();
-            if (!productStockRepository.IsInStock(product))
+            if (!_productStockRepository.IsInStock(product))
             {
                 throw new Exception($"{product} currently not in stock");
             }
             // Make payment
-            var paymentProcessor = new PaymentProcessor();
-            paymentProcessor.ChargeCreditCard(creditCardNumber, expiryDate);
+            _paymentProcessor.ChargeCreditCard(creditCardNumber, expiryDate);
 
             // Ship the product
-            var shippingProcessor = new ShippingProcessor();
-            shippingProcessor.MailProduct(product);
+            _shippingProcessor.MailProduct(product);
         }
     }
 }

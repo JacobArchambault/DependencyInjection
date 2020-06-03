@@ -4,12 +4,21 @@ using System.Text;
 
 namespace DependencyInjection
 {
-    class ShippingProcessor
+    public interface IShippingProcessor
     {
+        void MailProduct(Product product);
+    }
+
+    public class ShippingProcessor : IShippingProcessor
+    {
+        private readonly IProductStockRepository _productStockRepository;
+        public ShippingProcessor(IProductStockRepository productStockRepository)
+        {
+            _productStockRepository = productStockRepository;
+        }
         public void MailProduct(Product product)
         {
-            var productStockRepository = new ProductStockRepository();
-            productStockRepository.ReduceStock(product);
+            _productStockRepository.ReduceStock(product);
             Console.WriteLine("Calling to shipping API");
         }
     }
